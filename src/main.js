@@ -16,128 +16,281 @@ updateMotion();
 motionButton.addEventListener('click', () => { paused = !paused; updateMotion(); });
 document.querySelector('#coffee').addEventListener('click', () => {
   partyUntil = performance.now() + 6500;
-  document.querySelector('#coffee-message').textContent = 'Fikapeppen är igång! Skriv till mig på LinkedIn så hittar vi en tid. ☕';
+  document.querySelector('#coffee-message').textContent = 'En fika och ett snack om vad vi kan bygga? Vi hörs på LinkedIn. / William';
 });
-function updateClock() { document.querySelector('#clock').textContent = new Intl.DateTimeFormat('sv-SE', {timeZone:'Europe/Stockholm',hour:'2-digit',minute:'2-digit'}).format(new Date()); }
+function updateClock() {
+  const clock = document.querySelector('#clock');
+  if (clock) clock.textContent = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit' }).format(new Date());
+}
 updateClock(); setInterval(updateClock, 60000);
-
 try { initScene(); } catch (error) {
   document.querySelector('#scene-fallback').hidden = false;
   motionButton.hidden = true;
   console.warn('3D visualization unavailable:', error);
 }
+
 function initScene() {
-const canvas = document.querySelector('#scene');
-const renderer = new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.setClearColor(0x172827);
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-const scene = new THREE.Scene();
-const world = new THREE.Group();
-world.name = 'GreetingWorld';
-scene.add(world);
-scene.fog = new THREE.Fog(0x172827, 32, 65);
-const camera = new THREE.PerspectiveCamera(35, 1, .1, 100);
-camera.position.set(22, 19, 25);
-const controls = new OrbitControls(camera,canvas);
-controls.target.set(0,1,0);
-controls.enablePan = false; controls.enableZoom = false;
-controls.minPolarAngle = .5; controls.maxPolarAngle = 1.35;
-controls.enableDamping = true; controls.autoRotate = !reducedMotion; controls.autoRotateSpeed = .08;
-controls.update();
-scene.add(new THREE.AmbientLight(0xb5dcca, 1.5));
-const sun = new THREE.DirectionalLight(0xffe1ad, 4); sun.position.set(4,15,8);sun.castShadow = true;
-sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-20,right:20,top:16,bottom:-16});sun.shadow.bias=-.001;scene.add(sun);
-const fill = new THREE.PointLight(0x74e9e5,35,20);fill.position.set(-9,5,3);scene.add(fill);
-const mat = (color, extra={}) => new THREE.MeshStandardMaterial({color,roughness:.65,...extra});
-const dark = mat(0x24433e), edge=mat(0x426457), road=mat(0x142924), mint=mat(0xbad9a6), glass=mat(0x365f58,{metalness:.5,roughness:.3}), gold=mat(0xebbc78,{emissive:0x8c6026,emissiveIntensity:.25}), glow=mat(0xc4f29c,{emissive:0xa6ee67,emissiveIntensity:1}), aqua=mat(0x87e5de,{emissive:0x43bfb6,emissiveIntensity:.8});
-function box(w,h,d,m,x,y,z,parent=world) {const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;}
-function label(text,x,y,z,size=1.5,color='#d9e8cc') {const c=document.createElement('canvas');c.width=512;c.height=100;const ctx=c.getContext('2d');ctx.fillStyle=color;ctx.font='500 45px monospace';ctx.textAlign='center';ctx.fillText(text,256,64);const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;const plaque=new THREE.Mesh(new THREE.PlaneGeometry(size,size/5.12),new THREE.MeshBasicMaterial({map:texture,transparent:true,side:THREE.DoubleSide,depthWrite:false}));plaque.position.set(x,y,z);world.add(plaque);}
-box(23,.6,11,dark,0,-.4,0);box(23.2,.12,11.2,edge,0,-.75,0);
-box(22,.09,2.3,road,0,-.04,3.3);
-for(let x=-10;x<11;x+=1.2)box(.55,.02,.035,mint,x,.02,3.3);
-// Raised production line and luminous rails.
-box(14,.28,1.45,dark,-4,.8,0);
-for(const z of [-.78,.78])box(14,.075,.07,aqua,-4,1,z);
-for(let x=-10;x<3;x+=2){box(.12,1,.95,edge,x,.25,0);box(.07,.06,1.45,edge,x,1,0);}
-const factory=new THREE.Group();factory.position.set(-7,2,0);world.add(factory);
-const ring=new THREE.Mesh(new THREE.TorusGeometry(1.35,.35,12,48),dark);ring.rotation.y=Math.PI/2;ring.castShadow=true;factory.add(ring);
-const inner=new THREE.Mesh(new THREE.TorusGeometry(1.08,.065,8,48),aqua);inner.rotation.y=Math.PI/2;inner.position.x=.36;factory.add(inner);
-box(2,.5,3,dark,-7,.55,0);box(1.5,.16,2.8,gold,-7,.85,0);
-for(let i=0;i<12;i++){const a=i/12*Math.PI*2;box(.7,.18,.18,edge,-7,2+Math.cos(a)*1.35,Math.sin(a)*1.35);}
-label('THE BUILD ENGINE',-7,4,0,3.2);
-label('GC2 + GC3',-10.2,2,0,2,'#96e5e1');
-// Six delivered CRM modules form the little product city.
-const buildings=[['DEALS',5,-2.7,5.1,2.1],['CONTACTS',8,-2.5,3.8,2.1],['ACTIVITIES',9.1,.3,2.8,1.8],['DASHBOARD',2.5,-2.2,2.7,2],['SEARCH',5.1,.5,2.3,1.8],['TIMELINES',7.7,1.1,1.6,1.8]];
-for(const [name,x,z,h,w] of buildings){
- box(w+.35,.23,w+.35,edge,x,.12,z);box(w,h,w,glass,x,h/2+.25,z);
- box(w+.12,.12,w+.12,mint,x,h+.3,z);
- for(let y=.6;y<h;y+=.65){for(let dx=-w/2+.22;dx<w/2;dx+=.43){box(.23,.34,.025,gold,x+dx,y,z+w/2+.02);box(.025,.34,.23,gold,x+w/2+.02,y,z+dx);}}
- box(w+.05,.07,.04,gold,x,h+.34,z+w/2);
- label(name,x,h+.85,z,2.2);
- // Small roof garden.
- box(w*.7,.12,w*.55,dark,x,h+.43,z);
- for(let n=0;n<3;n++)tree(x-.45+n*.4,z,h+.45,.45);
-}
-function tree(x,z,base=0,scale=1){box(.1*scale,.65*scale,.1*scale,gold,x,base+.33*scale,z);const mesh=new THREE.Mesh(new THREE.IcosahedronGeometry(.45*scale,0),mat(0x729765));mesh.position.set(x,base+.9*scale,z);mesh.castShadow=true;world.add(mesh);}
-for(const [x,z] of [[1,-4],[3,-4.5],[6.6,-4.4],[10,-4],[10,2],[3,2],[1,1.7],[-2,-3],[-4,-3.7],[-9,4.5],[0,4.7],[4,4.6],[8,4.7]])tree(x,z,0,.7+Math.random()*.35);
-// Commit bars: added and removed code, represented illustratively.
-for(let i=0;i<17;i++){const h=.3+((i*7)%11)*.095;box(.32,h,.4,mint,-4.5+i*.38,h/2+1,-2.4);box(.32,.15+(i%4)*.12,.4,gold,-4.5+i*.38,.75-(i%4)*.06,-2.4);}
-label('CODE IN MOTION',-1.5,3,-2.4,3);
-const packets=[];
-for(let i=0;i<32;i++){const mesh=box(.22,.22,.22,i<15?aqua:glow,0,0,0);packets.push({mesh,offset:i/32});}
-const confetti=[];for(let i=0;i<70;i++){const mesh=box(.09,.14,.06,i%2?gold:glow,0,-5,0);mesh.userData.excludeFromAR=true;confetti.push({mesh,x:(Math.random()-.5)*18,z:(Math.random()-.5)*8,speed:1+Math.random()*2,phase:Math.random()*8});}
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(180,180),mat(0x172827));ground.rotation.x=-Math.PI/2;ground.position.y=-.86;ground.receiveShadow=true;scene.add(ground);
-function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w<600?49:35;camera.updateProjectionMatrix();}new ResizeObserver(resize).observe(canvas);resize();
-// Two little propeller planes carry the greeting in both the web scene and AR.
-const flightTracks=[];
-function airplane(name,message,color,phase,height) {
- const plane=new THREE.Group();plane.name=name;world.add(plane);
- const paint=mat(color),cream=mat(0xf2eed5);
- box(1.5,.24,.27,paint,0,0,0,plane);
- box(.42,.075,1.75,cream,.05,.04,0,plane);
- box(.36,.065,.7,paint,-.58,.09,0,plane);
- box(.3,.42,.065,paint,-.59,.19,0,plane);
- box(.35,.17,.22,glass,.17,.17,0,plane);
- const propeller=box(.04,.8,.06,dark,.81,0,0,plane);
- const nose=new THREE.Mesh(new THREE.SphereGeometry(.17,12,8),gold);nose.position.x=.78;plane.add(nose);
- box(.85,.015,.015,cream,-1.18,0,0,plane);
- const c=document.createElement('canvas');c.width=1024;c.height=256;
- const ctx=c.getContext('2d');ctx.fillStyle='#e4f1c8';ctx.fillRect(0,0,1024,256);
- ctx.strokeStyle='#6f8f61';ctx.lineWidth=12;ctx.strokeRect(8,8,1008,240);
- ctx.fillStyle='#20382c';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='600 78px sans-serif';ctx.fillText(message,512,130);
- const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;
- const banner=new THREE.Mesh(new THREE.PlaneGeometry(3.9,.95),new THREE.MeshStandardMaterial({map:texture,side:THREE.DoubleSide,roughness:1}));
- banner.position.set(-3.5,-.03,0);plane.add(banner);
- const times=[],positions=[],rotations=[];
- const duration=32,steps=160;
- for(let i=0;i<=steps;i++){
-   const angle=phase+i/steps*Math.PI*2;
-   times.push(i/steps*duration);
-   positions.push(Math.cos(angle)*8,height+Math.sin(angle*2)*.35,Math.sin(angle)*5.2);
-   const yaw=Math.atan2(-5.2*Math.cos(angle),-8*Math.sin(angle));
-   const q=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,yaw,-.09));
-   rotations.push(q.x,q.y,q.z,q.w);
- }
- flightTracks.push(new THREE.VectorKeyframeTrack(name+'.position',times,positions));
- flightTracks.push(new THREE.QuaternionKeyframeTrack(name+'.quaternion',times,rotations));
- return propeller;
-}
-const propellers=[airplane('JohnFlight','HEJ JOHN!  /  WILLIAM',0xd7efaa,0,7.1),airplane('ErikFlight','TACK ERIK!  /  FIKA?',0x8cdbd9,Math.PI,8.2)];
-const flightClip=new THREE.AnimationClip('En flygande halsning',32,flightTracks);
-const mixer=new THREE.AnimationMixer(world);mixer.clipAction(flightClip).play();mixer.update(0);
-// A physical sign remains part of the greeting when viewed in a room.
-box(5.5,.95,.12,dark,-5,.25,5.1);
-label('HEJ JOHN. TACK ERIK.',-5,.28,5.18,5.1);
-const ar = setupAR(world, { animations: [flightClip], modelSrc: import.meta.env.DEV ? undefined : './greeting.glb', iosSrc: import.meta.env.DEV ? undefined : './greeting.usdz' });
-if (import.meta.env.DEV) window.__exportGreeting = async () => {
-  await ar.open();
-  return (await ar.prepare()).url;
-};
-let elapsed=0,last=performance.now();
-renderer.setAnimationLoop(now=>{const dt=Math.min((now-last)/1000,.05);last=now;if(!paused){elapsed+=dt;mixer.update(dt);propellers.forEach(p=>p.rotation.x+=dt*24);controls.autoRotate=!reducedMotion;for(const {mesh,offset} of packets){const p=(elapsed*.055+offset)%1;mesh.position.set(-11+p*14,1.25+Math.sin(p*15+elapsed)*.07,0);mesh.rotation.set(elapsed,elapsed*.7,0);}for(const c of confetti){c.mesh.visible=now<partyUntil&&!reducedMotion;c.mesh.position.set(c.x,((elapsed*c.speed+c.phase)%8)+1,c.z);c.mesh.rotation.set(elapsed,elapsed,c.phase);}}else{controls.autoRotate=false;for(const c of confetti)c.mesh.visible=false;}controls.update();renderer.render(scene,camera);});
-// Position packets even when reduced motion starts the scene paused.
-packets.forEach(({mesh,offset})=>mesh.position.set(-11+offset*14,1.25,0));
+  const canvas = document.querySelector('#scene');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setClearColor(0x18212b);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.18;
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x18212b, .019);
+  const world = new THREE.Group();
+  world.name = 'GreetingWorld';
+  scene.add(world);
+  const camera = new THREE.PerspectiveCamera(36, 1, .1, 160);
+  const controls = new OrbitControls(camera, canvas);
+  controls.target.set(0, 3.2, 0);
+  controls.enablePan = false;
+  controls.enableZoom = false;
+  controls.minPolarAngle = .72;
+  controls.maxPolarAngle = 1.34;
+  controls.minAzimuthAngle = -.45;
+  controls.maxAzimuthAngle = .65;
+  controls.enableDamping = true;
+  controls.autoRotate = false;
+  scene.add(new THREE.HemisphereLight(0xbacde1, 0x4b3324, 2.2));
+  const sun = new THREE.DirectionalLight(0xffdfaa, 4.4);
+  sun.position.set(-9, 14, 7);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -17, right: 17, top: 15, bottom: -15 });
+  sun.shadow.bias = -.001;
+  scene.add(sun);
+  const rim = new THREE.DirectionalLight(0x779dc9, 2.5);
+  rim.position.set(9, 8, -10);
+  scene.add(rim);
+  const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: .75, ...extra });
+  const slate = mat(0x334454), charcoal = mat(0x202b35), concrete = mat(0x9e907b);
+  const cream = mat(0xe7d7b5), rust = mat(0xa24f36), brass = mat(0xc5955a, { metalness: .55, roughness: .4 });
+  const road = mat(0x2b3036), glass = mat(0x2e4a60, { metalness: .45, roughness: .32 });
+  const amber = mat(0xffc176, { emissive: 0xff9b3d, emissiveIntensity: .8 });
+  const blue = mat(0x8eb9d2, { emissive: 0x4b83a4, emissiveIntensity: .45 });
+  const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+  function box(w, h, d, material, x, y, z, parent = world) {
+    const mesh = new THREE.Mesh(boxGeometry, material);
+    mesh.scale.set(w, h, d); mesh.position.set(x, y, z);
+    mesh.castShadow = true; mesh.receiveShadow = true; parent.add(mesh); return mesh;
+  }
+  function cylinder(radius, height, material, x, y, z, parent = world, segments = 48) {
+    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, height, segments), material);
+    mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true; parent.add(mesh); return mesh;
+  }
+  function textPanel(lines, w, h, x, y, z, options = {}) {
+    const c = document.createElement('canvas'); c.width = 1536; c.height = Math.round(1536 * h / w);
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = options.background || '#23303b'; ctx.fillRect(0, 0, c.width, c.height);
+    if (options.border !== false) { ctx.strokeStyle = '#bd9664'; ctx.lineWidth = 8; ctx.strokeRect(16, 16, c.width - 32, c.height - 32); }
+    for (const line of lines) {
+      ctx.fillStyle = line.color || '#f3e2bf';
+      ctx.textAlign = line.align || 'center'; ctx.textBaseline = 'middle';
+      ctx.font = `${line.weight || 700} ${line.size * c.width}px ${line.font || 'Arial, sans-serif'}`;
+      ctx.fillText(line.text, (line.x ?? .5) * c.width, line.y * c.height);
+    }
+    const texture = new THREE.CanvasTexture(c); texture.colorSpace = THREE.SRGBColorSpace;
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: texture, roughness: 1, emissive: 0xffffff, emissiveMap: texture, emissiveIntensity: .25, side: THREE.DoubleSide }));
+    mesh.position.set(x, y, z); world.add(mesh); return mesh;
+  }
+  // A single engineered island: the road, factory and city share its oval footprint.
+  const base = cylinder(1, .7, charcoal, 0, -.42, 0); base.scale.set(11.8, 1, 6.2);
+  const lip = cylinder(1, .1, brass, 0, -.04, 0); lip.scale.set(11.78, 1, 6.18);
+  const terrain = cylinder(1, .16, concrete, 0, .06, 0); terrain.scale.set(11.62, 1, 6.02);
+  const ringShape = new THREE.Shape(); ringShape.absellipse(0, 0, 11, 5.45, 0, Math.PI * 2, false, 0);
+  const inner = new THREE.Path(); inner.absellipse(0, 0, 9.35, 3.95, 0, Math.PI * 2, true, 0); ringShape.holes.push(inner);
+  const roadMesh = new THREE.Mesh(new THREE.ShapeGeometry(ringShape, 100), road);
+  roadMesh.rotation.x = -Math.PI / 2; roadMesh.position.y = .16; roadMesh.receiveShadow = true; world.add(roadMesh);
+  for (let i = 0; i < 72; i++) {
+    const a = i / 72 * Math.PI * 2;
+    const marking = box(.25, .014, .035, cream, 10.2 * Math.cos(a), .18, 4.7 * Math.sin(a));
+    marking.rotation.y = Math.atan2(-4.7 * Math.cos(a), -10.2 * Math.sin(a));
+  }
+  // Greeting is part of the miniature, like an old roadside marquee.
+  for (const x of [-6.6, 4.5]) { box(.13, 5.1, .16, rust, x, 2.7, -3.15); box(.75, .18, .8, charcoal, x, .22, -3.15); }
+  box(12.2, 2.45, .24, rust, -1.05, 6.17, -3.2);
+  textPanel([
+    { text: 'EN LITEN VÄRLD AV MÖJLIGHETER', y: .19, size: .023, weight: 500, color: '#caa878' },
+    { text: 'HEJ JOHN.', y: .56, size: .126 },
+    { text: 'EN FLYGANDE HÄLSNING FRÅN WILLIAM', y: .87, size: .021, weight: 500 },
+  ], 11.95, 2.25, -1.05, 6.17, -3.055);
+  for (let i = 0; i < 25; i++) box(.06, .065, .08, amber, -6.8 + i * .48, 7.33, -3.03);
+  // The build engine sits on one factory pad, feeding a continuous assembly line.
+  box(7.4, .25, 4.2, slate, -5.4, .27, -.25);
+  box(3.6, 1.15, 3.05, charcoal, -7.1, .92, -.4);
+  box(3.8, .16, 3.2, rust, -7.1, 1.56, -.4);
+  for (const z of [-1.2, .4]) {
+    const pipe = cylinder(.24, 2.8, brass, -8.2, 2.1, z); box(.6, .12, .6, charcoal, pipe.position.x, 3.54, z);
+  }
+  const engine = new THREE.Group(); engine.position.set(-6.8, 2.2, .2); world.add(engine);
+  const housing = cylinder(1.13, 1.55, slate, 0, 0, 0, engine); housing.rotation.z = Math.PI / 2;
+  for (const x of [-.8, .8]) {
+    const rimMesh = new THREE.Mesh(new THREE.TorusGeometry(1.13, .12, 10, 48), brass);
+    rimMesh.rotation.y = Math.PI / 2; rimMesh.position.x = x; engine.add(rimMesh);
+  }
+  const core = new THREE.Mesh(new THREE.TorusGeometry(.79, .075, 10, 48), blue); core.rotation.y = Math.PI / 2; core.position.x = .83; engine.add(core);
+  for (let i = 0; i < 16; i++) {
+    const a = i / 16 * Math.PI * 2;
+    const fin = box(1.6, .08, .18, charcoal, 0, Math.cos(a) * 1.12, Math.sin(a) * 1.12, engine); fin.rotation.x = a;
+  }
+  textPanel([{ text: 'THE BUILD ENGINE', y: .34, size: .073 }, { text: 'IDÉ → KOD → PRODUKT', y: .73, size: .047, color: '#e0b17b' }], 3.6, .85, -7.1, 1.05, 1.15);
+  box(8.2, .3, 1.25, charcoal, -2.8, .65, .2);
+  for (const z of [-.46, .86]) box(8.25, .055, .065, brass, -2.8, .88, z);
+  for (let x = -6.3; x < 1.1; x += .44) {
+    const roller = cylinder(.09, 1.17, slate, x, .84, .2, world, 12); roller.rotation.x = Math.PI / 2;
+  }
+  const packets = [];
+  for (let i = 0; i < 18; i++) {
+    const packet = box(.23, .25, .25, i % 3 ? amber : blue, -6 + i / 18 * 7.5, 1.12, .2);
+    packets.push({ mesh: packet, offset: i / 18 });
+  }
+  // One connected city block with stepped heights and a shared central boulevard.
+  box(8.5, .32, 6.1, slate, 5, .31, -.55);
+  box(8.15, .13, 5.85, concrete, 5, .52, -.55);
+  const buildings = [
+    ['DEALS', 4.05, -2.05, 4.7, 1.9], ['CONTACTS', 6.5, -1.9, 3.65, 1.95],
+    ['DASHBOARD', 1.85, -1.65, 2.65, 1.65], ['ACTIVITIES', 8.15, .35, 2.75, 1.75],
+    ['SEARCH', 4.05, .7, 2.05, 1.7], ['TIMELINES', 6.2, 1.15, 1.5, 1.7],
+  ];
+  for (const [name, x, z, h, w] of buildings) {
+    box(w + .22, .2, w + .22, brass, x, .66, z);
+    box(w, h, w, slate, x, h / 2 + .75, z);
+    box(w + .16, .13, w + .16, cream, x, h + .8, z);
+    box(w * .76, .23, w * .72, charcoal, x, h + .96, z);
+    for (let y = 1.05; y < h + .35; y += .56) {
+      for (let dx = -w / 2 + .23; dx < w / 2 - .1; dx += .4) {
+        box(.24, .34, .045, amber, x + dx, y, z + w / 2 + .025);
+        box(.045, .34, .24, glass, x + w / 2 + .025, y, z + dx);
+      }
+    }
+    for (const dx of [-w / 2 + .08, w / 2 - .08]) box(.065, h, .06, brass, x + dx, h / 2 + .75, z + w / 2 + .06);
+    textPanel([{ text: name, y: .52, size: .105 }], w * .96, .43, x, h + .4, z + w / 2 + .07, { border: false });
+  }
+  // The product district belongs to William's illustrated shipping overview.
+  textPanel([
+    { text: 'FRÅN IDÉ TILL PRODUKT', y: .38, size: .059 },
+    { text: 'BYGGT AV WILLIAM', y: .76, size: .028, weight: 500, color: '#deb382' },
+  ], 6.5, 1, 4.9, .85, 2.53);
+  // Graphic bars are mounted behind the conveyor, not scattered around the world.
+  box(5.7, 1.55, .12, charcoal, -2.55, 1.38, -1.15);
+  for (let i = 0; i < 20; i++) {
+    const h = .2 + ((i * 7) % 11) * .073;
+    box(.16, h, .1, blue, -5.12 + i * .27, 1.17 + h / 2, -1.06);
+    box(.16, .09 + (i % 4) * .065, .1, rust, -5.12 + i * .27, 1.08 - (i % 4) * .0325, -1.06);
+  }
+  // Foreground production plaque keeps the real 30-day totals readable in 3D and AR.
+  for (const x of [-4.45, 4.45]) box(.12, 1.7, .15, brass, x, 1.03, 4.0);
+  box(10.5, 1.9, .22, rust, 0, 1.45, 4.02);
+  textPanel([
+    { text: '30 DAGAR I VERKSTADEN', y: .16, size: .023, weight: 500, color: '#d6b085' },
+    { text: '54,3 MD', x: .28, y: .46, size: .079 }, { text: '449', x: .75, y: .46, size: .079 },
+    { text: 'TOKENS', x: .28, y: .69, size: .024, weight: 500, color: '#b6c8d8' },
+    { text: 'COMMITS', x: .75, y: .69, size: .024, weight: 500, color: '#b6c8d8' },
+    { text: '+224 284 RADER    −57 781 RADER    115 FEATURE-COMMITS', y: .89, size: .0205, weight: 500 },
+  ], 10.32, 1.73, 0, 1.45, 4.15);
+  // Roadside lights and restrained dry landscaping share the perimeter rhythm.
+  for (let i = 0; i < 14; i++) {
+    const a = i / 14 * Math.PI * 2;
+    const x = Math.cos(a) * 11.2, z = Math.sin(a) * 5.7;
+    box(.065, .72, .065, charcoal, x, .53, z);
+    box(.14, .12, .14, amber, x, .94, z);
+  }
+  const shrubMaterial = mat(0x8d7356);
+  for (const [x, z] of [[-9, -2.7], [-8.8, 2.35], [-3.9, -3.2], [.1, -2.4], [8.8, -2.6], [9, 2.2], [2.4, 2.5]]) {
+    cylinder(.42, .13, rust, x, .28, z, world, 12);
+    const shrub = new THREE.Mesh(new THREE.IcosahedronGeometry(.34, 1), shrubMaterial);
+    shrub.scale.y = 1.5; shrub.position.set(x, .53, z); world.add(shrub);
+  }
+  const trucks = [];
+  for (let i = 0; i < 4; i++) {
+    const truck = new THREE.Group(); world.add(truck);
+    box(.55, .32, .34, i % 2 ? cream : rust, -.1, .3, 0, truck);
+    box(.23, .25, .32, slate, .3, .27, 0, truck);
+    box(.06, .08, .22, amber, .43, .25, 0, truck);
+    for (const x of [-.24, .24]) for (const z of [-.19, .19]) { const wheel = cylinder(.085, .045, charcoal, x, .12, z, truck, 10); wheel.rotation.x = Math.PI / 2; }
+    trucks.push(truck);
+  }
+  // Both aircraft follow the same smooth air corridor, with banners flexing in flight.
+  const flightTracks = [], propellers = [], banners = [];
+  function airplane(name, message, material, phase, height) {
+    const plane = new THREE.Group(); plane.name = name; world.add(plane);
+    const fuselage = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 12), material); fuselage.scale.set(.94, .18, .2); plane.add(fuselage);
+    box(.48, .055, 2.05, cream, -.02, .08, 0, plane);
+    box(.32, .06, .8, material, -.69, .05, 0, plane);
+    box(.32, .42, .055, material, -.69, .18, 0, plane);
+    box(.3, .16, .22, glass, .15, .17, 0, plane);
+    propellers.push(box(.04, .75, .055, charcoal, .98, 0, 0, plane));
+    box(.8, .013, .013, cream, -1.3, 0, 0, plane);
+    const c = document.createElement('canvas'); c.width = 1024; c.height = 200;
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#e9d8b8'; ctx.fillRect(0, 0, 1024, 200);
+    ctx.strokeStyle = '#a05339'; ctx.lineWidth = 12; ctx.strokeRect(8, 8, 1008, 184);
+    ctx.fillStyle = '#263440'; ctx.font = '700 75px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(message, 512, 106);
+    const texture = new THREE.CanvasTexture(c); texture.colorSpace = THREE.SRGBColorSpace;
+    const bannerMaterial = new THREE.MeshStandardMaterial({ map: texture, roughness: 1 });
+    for (const back of [false, true]) {
+      const geometry = new THREE.PlaneGeometry(4.2, .82, 20, 1);
+      if (back) geometry.rotateY(Math.PI);
+      const banner = new THREE.Mesh(geometry, bannerMaterial);
+      banner.position.set(-3.8, 0, back ? -.004 : .004);
+      banner.userData.wavePhase = phase;
+      plane.add(banner); banners.push(banner);
+    }
+    const times = [], positions = [], rotations = [];
+    for (let i = 0; i <= 200; i++) {
+      const a = phase + i / 200 * Math.PI * 2;
+      times.push(i / 200 * 48);
+      positions.push(Math.cos(a) * 9.4, height + Math.sin(a * 2) * .24, Math.sin(a) * 3.9);
+      const yaw = Math.atan2(-3.9 * Math.cos(a), -9.4 * Math.sin(a));
+      const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, -.06)); rotations.push(q.x, q.y, q.z, q.w);
+    }
+    flightTracks.push(new THREE.VectorKeyframeTrack(`${name}.position`, times, positions));
+    flightTracks.push(new THREE.QuaternionKeyframeTrack(`${name}.quaternion`, times, rotations));
+  }
+  airplane('JohnFlight', 'HEJ JOHN!  /  WILLIAM', rust, Math.PI * 1.42, 8.15);
+  airplane('CoffeeFlight', 'NÄSTA STOPP: FIKA?', slate, Math.PI * .42, 8.65);
+  const flightClip = new THREE.AnimationClip('En flygande halsning', 48, flightTracks);
+  const mixer = new THREE.AnimationMixer(world); mixer.clipAction(flightClip).play(); mixer.update(0);
+  // Ground and atmospheric dust are outside the portable AR miniature.
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(240, 240), mat(0x283039));
+  ground.rotation.x = -Math.PI / 2; ground.position.y = -.8; ground.receiveShadow = true; scene.add(ground);
+  const dustPositions = new Float32Array(160 * 3);
+  for (let i = 0; i < 160; i++) { dustPositions[i * 3] = Math.sin(i * 17.3) * 21; dustPositions[i * 3 + 1] = (i % 29) * .43; dustPositions[i * 3 + 2] = Math.cos(i * 9.7) * 14; }
+  const dustGeometry = new THREE.BufferGeometry(); dustGeometry.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+  const dust = new THREE.Points(dustGeometry, new THREE.PointsMaterial({ color: 0xd3ae7c, size: .038, transparent: true, opacity: .38, depthWrite: false })); scene.add(dust);
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    renderer.setSize(w, h, false); camera.aspect = w / h;
+    ground.visible = w >= 700;
+    // Preserve the whole greeting on portrait screens while letting the island fill desktop.
+    const distance = Math.max(31, 37 / camera.aspect);
+    camera.position.set(distance * .19, distance * .42 + 3.2, distance * .89);
+    scene.fog.density = .019 * 28 / distance;
+    camera.updateProjectionMatrix(); controls.update();
+  }
+  new ResizeObserver(resize).observe(canvas); resize();
+  const ar = setupAR(world, { animations: [flightClip], modelSrc: import.meta.env.DEV ? undefined : './greeting.glb', iosSrc: import.meta.env.DEV ? undefined : './greeting.usdz' });
+  if (import.meta.env.DEV) window.__exportGreeting = async () => { await ar.open(); return (await ar.prepare()).url; };
+  let elapsed = 0, last = performance.now();
+  function positionTraffic() {
+    for (const { mesh, offset } of packets) { const p = (elapsed * .09 + offset) % 1; mesh.position.set(-6 + p * 7.5, 1.11, .2); mesh.rotation.y = elapsed * .25; }
+    trucks.forEach((truck, i) => { const a = elapsed * .075 + i * Math.PI / 2; truck.position.set(10.2 * Math.cos(a), .18, 4.7 * Math.sin(a)); truck.rotation.y = Math.atan2(-4.7 * Math.cos(a), -10.2 * Math.sin(a)); });
+  }
+  positionTraffic();
+  renderer.setAnimationLoop(now => {
+    const dt = Math.min((now - last) / 1000, .05); last = now;
+    if (!paused) {
+      elapsed += dt; mixer.update(dt); propellers.forEach(p => { p.rotation.x += dt * 27; }); positionTraffic();
+      banners.forEach(banner => {
+        const positions = banner.geometry.attributes.position;
+        for (let i = 0; i < positions.count; i++) { const x = positions.getX(i); positions.setZ(i, Math.sin(x * 2.5 + elapsed * 3 + banner.userData.wavePhase) * .1 * (2.1 - x) / 4.2); }
+        positions.needsUpdate = true; banner.geometry.computeVertexNormals();
+      });
+      dust.rotation.y = Math.sin(elapsed * .02) * .08;
+    }
+    amber.emissiveIntensity = now < partyUntil && !reducedMotion && !paused ? 1 + Math.sin(elapsed * 3) * .35 : .8;
+    controls.update(); renderer.render(scene, camera);
+  });
 }

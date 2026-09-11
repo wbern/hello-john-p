@@ -1,6 +1,6 @@
-# Hej John. Tack Erik.
+# Hej John.
 
-A personal Swedish greeting with an interactive Three.js code factory and 30-day shipping statistics supplied by William.
+An immediate, full-screen Swedish 3D greeting for John: a cinematic retrofuturist diorama, orbiting aircraft, and 30-day shipping statistics supplied by William. Live at https://pages.bernting.se/hello-john-p/.
 
 ## Development
 

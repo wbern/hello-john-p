@@ -8,8 +8,8 @@ export function setupAR(group, { animations = [], modelSrc, iosSrc } = {}) {
   const status = document.querySelector('#ar-status');
   const dialog = document.createElement('dialog');
   dialog.setAttribute('aria-labelledby', 'ar-dialog-title');
-  dialog.style.cssText = 'width:min(620px,calc(100% - 32px));max-height:90dvh;overflow:auto;padding:24px;border:1px solid #a4b5a2;border-radius:20px;background:#f4f4e9;color:#142725;box-shadow:0 30px 100px #0008';
-  dialog.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;gap:16px"><h2 id="ar-dialog-title" style="font-size:26px;margin:0">En liten värld på ditt bord.</h2><button type="button" data-close aria-label="Stäng AR-förhandsvisning" style="font-size:24px;background:none;border:0;cursor:pointer">×</button></div><p data-help role="status">Förbereder din hälsning i 3D…</p><div data-model></div><button type="button" data-start hidden style="padding:14px 22px;border:0;border-radius:30px;background:#193c36;color:white;cursor:pointer">Placera i mitt rum ↗</button><p style="font-size:13px;line-height:1.5">På iPhone öppnas en stillbild i 3D i AR Quick Look. På en Android-enhet med WebXR kan flygningen fortsätta i AR.</p>`;
+  dialog.style.cssText = 'width:min(620px,calc(100% - 32px));max-height:90dvh;overflow:auto;padding:24px;border:1px solid #656b76;border-radius:4px;background:#202835;color:#e8ddcb;box-shadow:0 30px 100px #0008';
+  dialog.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;gap:16px"><h2 id="ar-dialog-title" style="font-size:26px;margin:0">En liten värld på ditt bord.</h2><button type="button" data-close aria-label="Stäng AR-förhandsvisning" style="font-size:24px;background:none;border:0;cursor:pointer">×</button></div><p data-help role="status">Förbereder din hälsning i 3D…</p><div data-model></div><button type="button" data-start hidden style="padding:14px 22px;border:0;border-radius:3px;background:#d6ab7a;color:#232832;cursor:pointer">Placera i mitt rum ↗</button><p style="font-size:13px;line-height:1.5">På iPhone öppnas en stillbild i 3D i AR Quick Look. På en Android-enhet med WebXR kan flygningen fortsätta i AR.</p>`;
   const viewer = document.querySelector('#ar-viewer') || document.createElement('model-viewer');
   viewer.id = 'ar-viewer';
   viewer.hidden = false;
@@ -21,7 +21,7 @@ export function setupAR(group, { animations = [], modelSrc, iosSrc } = {}) {
   if (iosSrc) viewer.setAttribute('ios-src', new URL(iosSrc, document.baseURI).href);
   viewer.setAttribute('shadow-intensity', '1');
   viewer.setAttribute('camera-orbit', '35deg 65deg auto');
-  viewer.style.cssText = 'display:block;width:100%;height:340px;background:#e3e9dd;border-radius:12px;margin:16px 0';
+  viewer.style.cssText = 'display:block;width:100%;height:340px;background:#adb0b5;border-radius:3px;margin:16px 0';
   dialog.querySelector('[data-model]').append(viewer);
   document.body.append(dialog);
   const help = dialog.querySelector('[data-help]');
