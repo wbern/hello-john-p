@@ -9,11 +9,11 @@ export function setupAR(group, { animations = [], modelSrc, iosSrc } = {}) {
   const dialog = document.createElement('dialog');
   dialog.setAttribute('aria-labelledby', 'ar-dialog-title');
   dialog.style.cssText = 'width:min(620px,calc(100% - 32px));max-height:90dvh;overflow:auto;padding:24px;border:1px solid #656b76;border-radius:4px;background:#202835;color:#e8ddcb;box-shadow:0 30px 100px #0008';
-  dialog.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;gap:16px"><h2 id="ar-dialog-title" style="font-size:26px;margin:0">En liten värld på ditt bord.</h2><button type="button" data-close aria-label="Stäng AR-förhandsvisning" style="font-size:24px;background:none;border:0;cursor:pointer">×</button></div><p data-help role="status">Förbereder din hälsning i 3D…</p><div data-model></div><button type="button" data-start hidden style="padding:14px 22px;border:0;border-radius:3px;background:#d6ab7a;color:#232832;cursor:pointer">Placera i mitt rum ↗</button><p style="font-size:13px;line-height:1.5">På iPhone öppnas en stillbild i 3D i AR Quick Look. På en Android-enhet med WebXR kan flygningen fortsätta i AR.</p>`;
+  dialog.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;gap:16px"><h2 id="ar-dialog-title" style="font-size:26px;margin:0">Hej John.</h2><button type="button" data-close aria-label="Stäng AR-förhandsvisning" style="font-size:24px;background:none;border:0;cursor:pointer">×</button></div><p data-help role="status">Förbereder din hälsning i 3D…</p><div data-model></div><button type="button" data-start hidden style="padding:14px 22px;border:0;border-radius:3px;background:#d6ab7a;color:#232832;cursor:pointer">Placera i mitt rum ↗</button><p style="font-size:13px;line-height:1.5">iPhone visar en statisk miniatyr.</p>`;
   const viewer = document.querySelector('#ar-viewer') || document.createElement('model-viewer');
   viewer.id = 'ar-viewer';
   viewer.hidden = false;
-  viewer.setAttribute('alt', 'Williams personliga hälsning: en kodfabrik, CRM-stad och flygplan som en bordsmodell');
+  viewer.setAttribute('alt', 'En miniatyrstad med flygplan och en hälsning till John från William');
   for (const attr of ['ar', 'camera-controls']) viewer.setAttribute(attr, '');
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) viewer.setAttribute('autoplay', '');
   viewer.setAttribute('ar-modes', modelSrc ? 'webxr scene-viewer quick-look' : 'webxr quick-look');
@@ -80,7 +80,7 @@ export function setupAR(group, { animations = [], modelSrc, iosSrc } = {}) {
     try {
       await prepare();
       start.hidden = !viewer.canActivateAR;
-      say(viewer.canActivateAR ? 'Snurra på modellen här. Tryck sedan nedan och hitta en fri yta för hälsningen.' : 'Snurra på modellen här. Öppna samma länk i Safari på iPhone eller Chrome på en Android-telefon med AR-stöd för att placera den i rummet.');
+      say(viewer.canActivateAR ? 'Tryck nedan och välj en yta i rummet.' : 'Öppna länken på en mobil med AR-stöd för att placera hälsningen i rummet.');
     } catch (error) {
       say('AR-modellen kunde inte förberedas. Stäng och försök igen; hälsningen går fortfarande att utforska på sidan.');
       console.error('AR preparation failed', error);

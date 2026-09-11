@@ -3,45 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#171c24" />
-  <meta name="description" content="John, en liten värld från mitt hörn. En flygande 3D-hälsning från William, redo att landa i ditt rum." />
-  <title>Hej John — en hälsning från William</title>
+  <meta name="theme-color" content="#18212b" />
+  <meta name="description" content="En liten 3D-hälsning till John från William." />
+  <title>Hej John — William</title>
 </head>
 <body>
-  <main class="experience" aria-label="En personlig 3D-hälsning till John">
-    <canvas id="scene" aria-label="En retrofuturistisk miniatyrstad med flygande hälsningar till John. Dra för att se dig omkring."></canvas>
+  <main class="experience" aria-label="En hälsning till John från William">
+    <canvas id="scene" aria-label="En miniatyrstad med flygplan och en skylt: Hej John. Dra för att se dig omkring."></canvas>
     <div class="film-frame" aria-hidden="true"></div>
-    <header class="screen-titles">
-      <span class="chapter">EN LITEN VÄRLD FRÅN MITT HÖRN</span>
-      <h1>Den här är till dig, John.</h1>
-      <span class="byline">En hälsning från William Bernting <span class="sep">/</span> Göteborg <span id="clock"></span></span>
-    </header>
-    <div id="scene-fallback" hidden><h2>Hej John.</h2><p>449 commits. 30 dagar. En liten värld av idéer.</p><p>3D kunde inte starta i den här webbläsaren. Prova Chrome eller Safari för hela hälsningen.</p></div>
-    <aside class="scene-note" aria-label="Om hälsningen">
-      <span class="note-number">01 — 30</span><span>DAGAR AV ATT BYGGA.<br/>NÄSTA ANHALT: EN FIKA?</span>
-    </aside>
-    <footer class="controls">
-      <span class="explore-hint">DRA FÖR ATT UTFORSKA <span>↔</span></span>
-      <div class="actions">
-        <button id="coffee" class="quiet-button" type="button">En fika? <span>↗</span></button>
-        <button id="launch-ar" class="ar-button" type="button"><span class="ar-icon" aria-hidden="true">⌗</span> Ta med den in i ditt rum</button>
-        <button id="motion" class="icon-button" type="button" aria-label="Pausa animation" aria-pressed="false">Ⅱ</button>
-        <button id="about" class="icon-button" type="button" aria-label="Om den här hälsningen" aria-expanded="false" aria-controls="about-panel">i</button>
-      </div>
-    </footer>
-    <p id="coffee-message" class="toast" role="status"></p>
+    <div id="scene-fallback" hidden><h1>Hej John.</h1><p>Från William</p></div>
+    <div class="controls">
+      <button id="launch-ar" type="button" aria-label="Visa hälsningen i AR">Visa i AR ↗</button>
+      <button id="motion" type="button" aria-label="Pausa animation" aria-pressed="false">Ⅱ</button>
+    </div>
     <p id="ar-status" class="sr-only" role="status"></p>
-    <section id="about-panel" popover aria-label="Bakom den lilla världen">
-      <button class="about-close" popovertarget="about-panel" popovertargetaction="hide" aria-label="Stäng information">×</button>
-      <span class="chapter">BAKOM DEN LILLA VÄRLDEN</span>
-      <h2>Idéer som blir till saker.</h2>
-      <p>John, ni på Creative Database kopplar ihop kreatörer och möjligheter. Jag gillar att koppla ihop idéer och fungerande kod. Här är lite av det som bubblar hos mig.</p>
-      <a href="https://www.creativedatabase.io/" target="_blank" rel="noopener noreferrer">Creative Database ↗</a>
-      <dl><div><dt>Tokens</dt><dd>54,3 md</dd></div><div><dt>Commits</dt><dd>449</dd></div><div><dt>Rader tillagda</dt><dd>224 284</dd></div><div><dt>Rader borttagna</dt><dd>57 781</dd></div><div><dt>Feature-commits</dt><dd>115</dd></div></dl>
-      <p class="fine-print">Siffror från min 30-dagarsöversikt. Staden är en illustration. AR kräver en kompatibel mobil; på iPhone visas en statisk miniatyr.</p>
-    </section>
   </main>
   <script type="module" src="/src/main.js"></script>
-  <script type="module" src="/src/interface.js"></script>
 </body>
 </html>

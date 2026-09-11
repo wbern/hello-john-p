@@ -5,7 +5,6 @@ import { setupAR } from './ar.js';
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let paused = reducedMotion;
-let partyUntil = 0;
 const motionButton = document.querySelector('#motion');
 function updateMotion() {
   motionButton.textContent = paused ? '▷' : 'Ⅱ';
@@ -14,15 +13,6 @@ function updateMotion() {
 }
 updateMotion();
 motionButton.addEventListener('click', () => { paused = !paused; updateMotion(); });
-document.querySelector('#coffee').addEventListener('click', () => {
-  partyUntil = performance.now() + 6500;
-  document.querySelector('#coffee-message').textContent = 'En fika och ett snack om vad vi kan bygga? Vi hörs på LinkedIn. / William';
-});
-function updateClock() {
-  const clock = document.querySelector('#clock');
-  if (clock) clock.textContent = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit' }).format(new Date());
-}
-updateClock(); setInterval(updateClock, 60000);
 try { initScene(); } catch (error) {
   document.querySelector('#scene-fallback').hidden = false;
   motionButton.hidden = true;
@@ -109,15 +99,14 @@ function initScene() {
     const marking = box(.25, .014, .035, cream, 10.2 * Math.cos(a), .18, 4.7 * Math.sin(a));
     marking.rotation.y = Math.atan2(-4.7 * Math.cos(a), -10.2 * Math.sin(a));
   }
-  // Greeting is part of the miniature, like an old roadside marquee.
-  for (const x of [-6.6, 4.5]) { box(.13, 5.1, .16, rust, x, 2.7, -3.15); box(.75, .18, .8, charcoal, x, .22, -3.15); }
-  box(12.2, 2.45, .24, rust, -1.05, 6.17, -3.2);
-  textPanel([
-    { text: 'EN LITEN VÄRLD AV MÖJLIGHETER', y: .19, size: .023, weight: 500, color: '#caa878' },
-    { text: 'HEJ JOHN.', y: .56, size: .126 },
-    { text: 'EN FLYGANDE HÄLSNING FRÅN WILLIAM', y: .87, size: .021, weight: 500 },
-  ], 11.95, 2.25, -1.05, 6.17, -3.055);
-  for (let i = 0; i < 25; i++) box(.06, .065, .08, amber, -6.8 + i * .48, 7.33, -3.03);
+  // One greeting, with generous space around the lettering.
+  for (const x of [-5.3, 3.2]) {
+    box(.13, 5.1, .16, rust, x, 2.7, -3.15);
+    box(.75, .18, .8, charcoal, x, .22, -3.15);
+  }
+  box(9.2, 2.2, .24, rust, -1.05, 6.17, -3.2);
+  textPanel([{ text: 'HEJ JOHN.', y: .52, size: .11 }], 8.95, 1.98, -1.05, 6.17, -3.055);
+  for (let i = 0; i < 19; i++) box(.06, .065, .08, amber, -5.35 + i * .48, 7.2, -3.03);
   // The build engine sits on one factory pad, feeding a continuous assembly line.
   box(7.4, .25, 4.2, slate, -5.4, .27, -.25);
   box(3.6, 1.15, 3.05, charcoal, -7.1, .92, -.4);
@@ -136,7 +125,6 @@ function initScene() {
     const a = i / 16 * Math.PI * 2;
     const fin = box(1.6, .08, .18, charcoal, 0, Math.cos(a) * 1.12, Math.sin(a) * 1.12, engine); fin.rotation.x = a;
   }
-  textPanel([{ text: 'THE BUILD ENGINE', y: .34, size: .073 }, { text: 'IDÉ → KOD → PRODUKT', y: .73, size: .047, color: '#e0b17b' }], 3.6, .85, -7.1, 1.05, 1.15);
   box(8.2, .3, 1.25, charcoal, -2.8, .65, .2);
   for (const z of [-.46, .86]) box(8.25, .055, .065, brass, -2.8, .88, z);
   for (let x = -6.3; x < 1.1; x += .44) {
@@ -151,11 +139,11 @@ function initScene() {
   box(8.5, .32, 6.1, slate, 5, .31, -.55);
   box(8.15, .13, 5.85, concrete, 5, .52, -.55);
   const buildings = [
-    ['DEALS', 4.05, -2.05, 4.7, 1.9], ['CONTACTS', 6.5, -1.9, 3.65, 1.95],
-    ['DASHBOARD', 1.85, -1.65, 2.65, 1.65], ['ACTIVITIES', 8.15, .35, 2.75, 1.75],
-    ['SEARCH', 4.05, .7, 2.05, 1.7], ['TIMELINES', 6.2, 1.15, 1.5, 1.7],
+    [4.05, -2.05, 4.7, 1.9], [6.5, -1.9, 3.65, 1.95],
+    [1.85, -1.65, 2.65, 1.65], [8.15, .35, 2.75, 1.75],
+    [4.05, .7, 2.05, 1.7], [6.2, 1.15, 1.5, 1.7],
   ];
-  for (const [name, x, z, h, w] of buildings) {
+  for (const [x, z, h, w] of buildings) {
     box(w + .22, .2, w + .22, brass, x, .66, z);
     box(w, h, w, slate, x, h / 2 + .75, z);
     box(w + .16, .13, w + .16, cream, x, h + .8, z);
@@ -167,13 +155,7 @@ function initScene() {
       }
     }
     for (const dx of [-w / 2 + .08, w / 2 - .08]) box(.065, h, .06, brass, x + dx, h / 2 + .75, z + w / 2 + .06);
-    textPanel([{ text: name, y: .52, size: .105 }], w * .96, .43, x, h + .4, z + w / 2 + .07, { border: false });
   }
-  // The product district belongs to William's illustrated shipping overview.
-  textPanel([
-    { text: 'FRÅN IDÉ TILL PRODUKT', y: .38, size: .059 },
-    { text: 'BYGGT AV WILLIAM', y: .76, size: .028, weight: 500, color: '#deb382' },
-  ], 6.5, 1, 4.9, .85, 2.53);
   // Graphic bars are mounted behind the conveyor, not scattered around the world.
   box(5.7, 1.55, .12, charcoal, -2.55, 1.38, -1.15);
   for (let i = 0; i < 20; i++) {
@@ -181,16 +163,6 @@ function initScene() {
     box(.16, h, .1, blue, -5.12 + i * .27, 1.17 + h / 2, -1.06);
     box(.16, .09 + (i % 4) * .065, .1, rust, -5.12 + i * .27, 1.08 - (i % 4) * .0325, -1.06);
   }
-  // Foreground production plaque keeps the real 30-day totals readable in 3D and AR.
-  for (const x of [-4.45, 4.45]) box(.12, 1.7, .15, brass, x, 1.03, 4.0);
-  box(10.5, 1.9, .22, rust, 0, 1.45, 4.02);
-  textPanel([
-    { text: '30 DAGAR I VERKSTADEN', y: .16, size: .023, weight: 500, color: '#d6b085' },
-    { text: '54,3 MD', x: .28, y: .46, size: .079 }, { text: '449', x: .75, y: .46, size: .079 },
-    { text: 'TOKENS', x: .28, y: .69, size: .024, weight: 500, color: '#b6c8d8' },
-    { text: 'COMMITS', x: .75, y: .69, size: .024, weight: 500, color: '#b6c8d8' },
-    { text: '+224 284 RADER    −57 781 RADER    115 FEATURE-COMMITS', y: .89, size: .0205, weight: 500 },
-  ], 10.32, 1.73, 0, 1.45, 4.15);
   // Roadside lights and restrained dry landscaping share the perimeter rhythm.
   for (let i = 0; i < 14; i++) {
     const a = i / 14 * Math.PI * 2;
@@ -213,9 +185,9 @@ function initScene() {
     for (const x of [-.24, .24]) for (const z of [-.19, .19]) { const wheel = cylinder(.085, .045, charcoal, x, .12, z, truck, 10); wheel.rotation.x = Math.PI / 2; }
     trucks.push(truck);
   }
-  // Both aircraft follow the same smooth air corridor, with banners flexing in flight.
-  const flightTracks = [], propellers = [], banners = [];
-  function airplane(name, message, material, phase, height) {
+  // Unadorned aircraft follow one smooth air corridor.
+  const flightTracks = [], propellers = [];
+  function airplane(name, material, phase, height) {
     const plane = new THREE.Group(); plane.name = name; world.add(plane);
     const fuselage = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 12), material); fuselage.scale.set(.94, .18, .2); plane.add(fuselage);
     box(.48, .055, 2.05, cream, -.02, .08, 0, plane);
@@ -223,21 +195,6 @@ function initScene() {
     box(.32, .42, .055, material, -.69, .18, 0, plane);
     box(.3, .16, .22, glass, .15, .17, 0, plane);
     propellers.push(box(.04, .75, .055, charcoal, .98, 0, 0, plane));
-    box(.8, .013, .013, cream, -1.3, 0, 0, plane);
-    const c = document.createElement('canvas'); c.width = 1024; c.height = 200;
-    const ctx = c.getContext('2d'); ctx.fillStyle = '#e9d8b8'; ctx.fillRect(0, 0, 1024, 200);
-    ctx.strokeStyle = '#a05339'; ctx.lineWidth = 12; ctx.strokeRect(8, 8, 1008, 184);
-    ctx.fillStyle = '#263440'; ctx.font = '700 75px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(message, 512, 106);
-    const texture = new THREE.CanvasTexture(c); texture.colorSpace = THREE.SRGBColorSpace;
-    const bannerMaterial = new THREE.MeshStandardMaterial({ map: texture, roughness: 1 });
-    for (const back of [false, true]) {
-      const geometry = new THREE.PlaneGeometry(4.2, .82, 20, 1);
-      if (back) geometry.rotateY(Math.PI);
-      const banner = new THREE.Mesh(geometry, bannerMaterial);
-      banner.position.set(-3.8, 0, back ? -.004 : .004);
-      banner.userData.wavePhase = phase;
-      plane.add(banner); banners.push(banner);
-    }
     const times = [], positions = [], rotations = [];
     for (let i = 0; i <= 200; i++) {
       const a = phase + i / 200 * Math.PI * 2;
@@ -249,8 +206,8 @@ function initScene() {
     flightTracks.push(new THREE.VectorKeyframeTrack(`${name}.position`, times, positions));
     flightTracks.push(new THREE.QuaternionKeyframeTrack(`${name}.quaternion`, times, rotations));
   }
-  airplane('JohnFlight', 'HEJ JOHN!  /  WILLIAM', rust, Math.PI * 1.42, 8.15);
-  airplane('CoffeeFlight', 'NÄSTA STOPP: FIKA?', slate, Math.PI * .42, 8.65);
+  airplane('JohnFlight', rust, Math.PI * 1.42, 10.6);
+  airplane('CompanionFlight', slate, Math.PI * .42, 11.1);
   const flightClip = new THREE.AnimationClip('En flygande halsning', 48, flightTracks);
   const mixer = new THREE.AnimationMixer(world); mixer.clipAction(flightClip).play(); mixer.update(0);
   // Ground and atmospheric dust are outside the portable AR miniature.
@@ -283,14 +240,8 @@ function initScene() {
     const dt = Math.min((now - last) / 1000, .05); last = now;
     if (!paused) {
       elapsed += dt; mixer.update(dt); propellers.forEach(p => { p.rotation.x += dt * 27; }); positionTraffic();
-      banners.forEach(banner => {
-        const positions = banner.geometry.attributes.position;
-        for (let i = 0; i < positions.count; i++) { const x = positions.getX(i); positions.setZ(i, Math.sin(x * 2.5 + elapsed * 3 + banner.userData.wavePhase) * .1 * (2.1 - x) / 4.2); }
-        positions.needsUpdate = true; banner.geometry.computeVertexNormals();
-      });
       dust.rotation.y = Math.sin(elapsed * .02) * .08;
     }
-    amber.emissiveIntensity = now < partyUntil && !reducedMotion && !paused ? 1 + Math.sin(elapsed * 3) * .35 : .8;
     controls.update(); renderer.render(scene, camera);
   });
 }
